@@ -1,8 +1,20 @@
 const express = require("express");
 const path = require("path");
 const app = express();
+const connection = require("./db");
+const cors = require("cors");
+const  dotenv = require('dotenv');
+dotenv.config();
 
-const port = 3000 || 8080;
+
+connection();
+
+// middleware
+app.use(express.json());
+app.use(cors());
+
+const port = process.env.PORT;
+
 app.listen(port, () => {
   console.log(`${port}`);
 });
@@ -16,16 +28,15 @@ app.set("views", path.join(__dirname, "/views"));
 app.get("/", (req, res) => {
   // res.send("HOME");
   res.render("home");
-  
 });
 
-app.get("/rolldice",(req,res)=>{
-  const dicevalue =Math.floor(Math.random()*6 +1   )
- res.render("rolldice",{dicenum:dicevalue});
+app.get("/rolldice", (req, res) => {
+  const dicevalue = Math.floor(Math.random() * 6 + 1);
+  res.render("rolldice", { dicenum: dicevalue });
 });
-app.get("/ig/:username",(req,res)=>{
-  const {username}= req.params;
-  res.render("instagram",{username});
+app.get("/ig/:username", (req, res) => {
+  const { username } = req.params;
+  res.render("instagram", { username });
 });
 app.get("/search", (req, res) => {
   console.log(req.query, "query");
