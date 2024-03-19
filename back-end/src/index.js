@@ -15,6 +15,7 @@ connection()
       console.log(`server is running ${process.env.PORT}`);
     });
   })
-  .catch((err) => {
+  .catch((err) => {                                              
     console.log("MONGO CONNECTION FAILED !!!!", err);
   });
+                                             
