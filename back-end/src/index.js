@@ -1,5 +1,4 @@
 const connection = require("./db/db");
-const cors = require("cors");
 const dotenv = require("dotenv");
 const { app } = require("./app");
 
@@ -15,7 +14,6 @@ connection()
       console.log(`server is running ${process.env.PORT}`);
     });
   })
-  .catch((err) => {                                              
+  .catch((err) => {
     console.log("MONGO CONNECTION FAILED !!!!", err);
   });
-                                             

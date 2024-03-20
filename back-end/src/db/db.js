@@ -11,7 +11,7 @@ module.exports = async () => {
 
   try {
     const connectionInstance = await mongoose.connect(
-      `${process.env.DB}/${DB_NAME}`
+      `${process.env.DB}${DB_NAME}`
     );
     console.log(
       `Connected Successfully .....DB host: ${connectionInstance.connection.host} with DB :${DB_NAME}`
