@@ -28,7 +28,7 @@ userSchema.methods.generateAuthToken = function () {
   return token;
 };
 
-// userSchema.method.generateRefreshToken = function () {}; 
+// userSchema.method.generateRefreshToken = function () {};
 
 const User = mongoose.model("User", userSchema);
 
