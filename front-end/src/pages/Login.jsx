@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Navigate, useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function Login({ loggedInUser }) {
   const [formData, setFormData] = useState({
     email: "",
@@ -29,10 +30,10 @@ function Login({ loggedInUser }) {
     try {
       const { data: res } = await axios.post("/api/v1/users/login", formData);
       if (res) {
-        //  navigation("/");
+        // navigation("/");
+        toast(res.message);
         console.log(res.message);
-        console.log(res.data.accessToken);
-        loggedInUser(res);
+        loggedInUser(res.data.accessToken);
       }
     } catch (error) {
       console.log(error);
@@ -70,8 +71,9 @@ function Login({ loggedInUser }) {
           onClick={handleSubmit}
           className={`bg-gradient-to-r from-[#00BBFF] to-[#4579F5] shrink-0 max-w-[176px] w-full  rounded-[12px] border-[1px] border-[#0E0F12] text-[#fff] font-[600] text-[16px]  justify-center flex px-[24] py-[12px]`}
         >
-          Verify Degree
+          Login
         </button>
+        <ToastContainer />
       </div>
     </>
   );
