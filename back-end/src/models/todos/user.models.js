@@ -7,7 +7,11 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: [true, "password is required"] },
+    refreshToken: {
+      type: String,
+    },
   },
+
   { timestamps: true }
 );
 
@@ -28,7 +32,17 @@ userSchema.methods.generateAuthToken = function () {
   return token;
 };
 
-// userSchema.method.generateRefreshToken = function () {};
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
+};
 
 const User = mongoose.model("User", userSchema);
 

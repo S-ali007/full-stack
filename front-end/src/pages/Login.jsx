@@ -29,10 +29,10 @@ function Login({ loggedInUser }) {
     try {
       const { data: res } = await axios.post("/api/v1/users/login", formData);
       if (res) {
-         navigation("/");
+        //  navigation("/");
         console.log(res.message);
+        console.log(res.data.accessToken);
         loggedInUser(res);
-       
       }
     } catch (error) {
       console.log(error);
