@@ -42,7 +42,8 @@ const registerUser = asyncHandler(async (req, res) => {
   );
   // console.log(existedUser,"user")
   if (existedUser) {
-    throw new ApiError(409, "Email Already Exist !");
+    return res.status(201).json(new ApiError(409, "", "Email Already Exist !"));
+    // new ApiError(409, "Email Already Exist !");
   }
   const user = await User.create({
     firstName,
@@ -176,5 +177,5 @@ module.exports = {
   registerUser,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
 };
