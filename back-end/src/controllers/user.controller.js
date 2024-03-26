@@ -42,7 +42,9 @@ const registerUser = asyncHandler(async (req, res) => {
   );
   // console.log(existedUser,"user")
   if (existedUser) {
-    return res.status(409).json(new ApiError(409, existedUser, "Email Already Exist !"));
+    return res
+      .status(409)
+      .json(new ApiError(409, existedUser, "Email Already Exist !"));
     // new ApiError(409, "Email Already Exist !");
   }
   const user = await User.create({
@@ -76,17 +78,21 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email) {
-    throw new ApiError(400, "Email Required !");
+    return res.status(400).json(new ApiError(400, "", "Email Required !"));
   }
   const existedUser = await User.findOne({ email });
   // console.log(existedUser);
   if (!existedUser) {
-    throw new ApiError(404, "User Doesnot Exist ....Please SignUp!");
+    return res
+      .status(404)
+      .json(new ApiError(404, "", "User Doesnot Exist ....Please SignUp!"));
   }
 
   const isPasswordVaild = await existedUser.isPasswordCorrect(password);
   if (!isPasswordVaild) {
-    throw new ApiError(401, "Invalid User Credentials");
+    return res
+      .status(401)
+      .json(new ApiError(401, "", "Invalid User Credentials"));
   }
 
   const { accessToken, refreshToken } = await generateAuthTokenAndRefresh(
@@ -134,7 +140,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const incomingRefreshToken = await req.cookies.refreshToken;
     if (!incomingRefreshToken) {
-      throw new ApiError(401, "unautorized request");
+      return res.status(401).json(new ApiError(401, "", "unautorized request"));
     }
 
     const decodedToken = jwt.verify(
@@ -143,11 +149,15 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     );
     const user = await User.findById(decodedToken?._id);
     if (!user) {
-      throw new ApiError(401, "Invalid Refresh Token");
+      return res
+        .status(401)
+        .json(new ApiError(401, "", "Invalid Refresh Token"));
     }
 
     if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token is expired or used");
+      return res
+        .status(401)
+        .json(new ApiError(401, "", "Refresh token is expired or used"));
     }
 
     const options = {
@@ -169,7 +179,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new ApiError(401, "Invalid Refresh Token");
+    return res.status(401).json(new ApiError(401, "", "Invalid Refresh Token"));
   }
 });
 
