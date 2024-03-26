@@ -30,13 +30,13 @@ function Login({ loggedInUser }) {
     try {
       const { data: res } = await axios.post("/api/v1/users/login", formData);
       if (res) {
-        // navigation("/");
         toast(res.message);
-        console.log(res.message);
-        loggedInUser(res.data.accessToken);
+        // console.log(res);
+        loggedInUser(res);
+        navigation("/");
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error.response.data.errors);
     }
   };
 
@@ -73,7 +73,18 @@ function Login({ loggedInUser }) {
         >
           Login
         </button>
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </div>
     </>
   );

@@ -38,17 +38,19 @@ function Signup({ loggedInUser }) {
     }
 
     try {
-      const { data: res } = await axios.post(
+      const { data : res } = await axios.post(
         "/api/v1/users/register",
         formData
       );
+      // console.log(res);
       if (res) {
         toast.success(res.message);
-        loggedInUser(res.request.response);
-        // navigation("/");
+        loggedInUser(res);
+        // console.log(res)
+        navigation("/");
       }
     } catch (error) {
-      toast.error("Email Already Exist");
+      toast.error(error.response.data.errors);
     }
   };
 
@@ -103,7 +105,7 @@ function Signup({ loggedInUser }) {
         </button>
         <ToastContainer
           position="top-right"
-          autoClose={1000}
+          autoClose={2000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick

@@ -8,12 +8,13 @@ import Home from "./pages/Home";
 
 function App() {
   const [cookies, setCookie] = useState("");
+  console.log(cookies, "aaaa");
 
   return (
     <Routes>
       <Route path="/signup" element={<Signup loggedInUser={setCookie} />} />
 
-      <Route path="/" element={<Home />} />
+      {cookies && <Route path="/" element={<Home />} />}
 
       <Route path="/login" element={<Login loggedInUser={setCookie} />} />
 
