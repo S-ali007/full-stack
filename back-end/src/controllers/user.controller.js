@@ -37,6 +37,32 @@ const registerUser = asyncHandler(async (req, res) => {
     return console.log("first");
   }
 
+  const emailValidator = User.schema.path("email").validators[1];
+
+  const emailValidationResult = emailValidator.validator(email);
+  if (!emailValidationResult) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "", `${email} is not a valid email address!`));
+  }
+
+  const passwordValidator = User.schema
+    .path("password")
+    .validators.find((validator) => validator.type === "minlength");
+  const passwordMinLength = passwordValidator?.minlength;
+
+  if (password.length < passwordMinLength) {
+    return res
+      .status(400)
+      .json(
+        new ApiError(
+          400,
+          "",
+          `Password must be at least ${passwordMinLength} characters long`
+        )
+      );
+  }
+
   const existedUser = await User.findOne({ email }).select(
     " -password -createdAt -updatedAt"
   );
@@ -79,6 +105,14 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!email) {
     return res.status(400).json(new ApiError(400, "", "Email Required !"));
+  }
+  const emailValidator = User.schema.path("email").validators[1];
+
+  const emailValidationResult = emailValidator.validator(email);
+  if (!emailValidationResult) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "", `${email} is not a valid email address!`));
   }
   const existedUser = await User.findOne({ email });
   // console.log(existedUser);

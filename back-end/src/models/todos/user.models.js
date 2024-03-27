@@ -11,10 +11,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       validate: {
-        validator: function (v) {
-          return /^[-a-z0-9_.]+@([-a-zA-Z0-9_]+\.)+[-a-zA-Z0-9_]{2,4}$/.test(v);
+        validator: function (email) {
+          return /^[-a-z0-9_.]+@([-a-zA-Z0-9_]+\.)+[-a-zA-Z0-9_]{2,4}$/.test(
+            email
+          );
         },
-        message: (props) => `${props.value} is not a valid email address!`,
       },
     },
     password: {
