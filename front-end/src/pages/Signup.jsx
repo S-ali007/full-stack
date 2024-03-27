@@ -47,7 +47,7 @@ function Signup({ loggedInUser }) {
         toast.success(res.message);
         loggedInUser(res);
         // console.log(res)
-        navigation("/");
+        navigation("/login");
       }
     } catch (error) {
       toast.error(error.response.data.errors);
