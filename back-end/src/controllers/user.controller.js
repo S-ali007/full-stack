@@ -229,8 +229,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             "Refreshed Successfully!"
           )
         );
+    } else {
+      return res
+        .status(401)
+        .json(new ApiError(401, "", "Unauthorized request"));
     }
-   
   } catch (error) {
     return res.status(401).json(new ApiError(401, "", "Invalid Refresh Token"));
   }
