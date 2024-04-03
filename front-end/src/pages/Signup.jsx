@@ -1,123 +1,156 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FiUser, FiMail, FiLock } from "react-icons/fi"; // Example: Icons from react-icons library
+import "../App.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function Signup({ loggedInUser }) {
-  const [formData, setFormData] = useState({
+const Register = () => {
+  const [passShow, setPassShow] = useState(false);
+  const navigate = useNavigate();
+
+  const [inpval, setInpval] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
   });
 
-  const navigation = useNavigate();
-
-  const handleInputChange = (e) => {
+  const setVal = (e) => {
     const { name, value } = e.target;
 
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setInpval(() => {
+      return {
+        ...inpval,
+        [name]: value,
+      };
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const addUserdata = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.email ||
-      !formData.password ||
-      !formData.firstName ||
-      !formData.lastName
-    ) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+    const { firstName, lastName, email, password } = inpval;
 
-    try {
-      const { data : res } = await axios.post(
-        "/api/v1/users/register",
-        formData
-      );
-      // console.log(res);
-      if (res) {
-        toast.success(res.message);
-        loggedInUser(res);
-        // console.log(res)
-        navigation("/login");
+    if (firstName === "") {
+      toast.warning("First Name is required!", {
+        position: "top-center",
+      });
+    } else if (lastName === "") {
+      toast.error("last Name is required!", {
+        position: "top-center",
+      });
+    } else if (email === "") {
+      toast.error("Email is required!", {
+        position: "top-center",
+      });
+    } else if (!email.includes("@")) {
+      toast.warning("includes @ in your email!", {
+        position: "top-center",
+      });
+    } else if (password === "") {
+      toast.error("Password is required!", {
+        position: "top-center",
+      });
+    } else if (password.length < 6) {
+      toast.error("Password must be 6 char!", {
+        position: "top-center",
+      });
+    } else {
+      try {
+        const { data: res } = await axios.post(
+          "/api/v1/users/register",
+          inpval
+        );
+        if (res) {
+          toast.success(res.message);
+          navigate("/");
+        }
+      } catch (error) {
+        toast.error(error.response.data.errors);
       }
-    } catch (error) {
-      toast.error(error.response.data.errors);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-b from-indigo-500 to-purple-600 mx-auto w-full">
-      <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-gray-800 text-3xl font-bold mb-8">Sign Up</h1>
-        <div className="flex flex-col gap-4">
-          {/* Input fields */}
-          {[
-            {
-              label: "First Name",
-              name: "firstName",
-              type: "text",
-              icon: <FiUser />,
-            },
-            {
-              label: "Last Name",
-              name: "lastName",
-              type: "text",
-              icon: <FiUser />,
-            },
-            { label: "Email", name: "email", type: "email", icon: <FiMail /> },
-            {
-              label: "Password",
-              name: "password",
-              type: "password",
-              icon: <FiLock />,
-            },
-          ].map((field) => (
-            <div key={field.name}>
-              <div className="flex items-center bg-gray-100 rounded-lg p-2">
-                <div className="mr-4 text-gray-600">{field.icon}</div>
+    <>
+      <section>
+        <div className="form_data">
+          <div className="form_heading">
+            <h1>Sign Up</h1>
+            <p style={{ textAlign: "center" }}>
+              We are glad that you will be using Project Cloud to manage <br />
+              your tasks! We hope that you will get like it.
+            </p>
+          </div>
+
+          <form>
+            <div className="form_input">
+              <label htmlFor="firstName">First Name</label>
+              <input
+                type="text"
+                onChange={setVal}
+                value={inpval.firstName}
+                name="firstName"
+                id="firstName"
+                placeholder="Enter Your First Name"
+              />
+            </div>
+            <div className="form_input">
+              <label htmlFor="lastName">Last Name</label>
+              <input
+                type="text"
+                onChange={setVal}
+                value={inpval.lastName}
+                name="lastName"
+                id="lastName"
+                placeholder="Enter Your Last Name"
+              />
+            </div>
+            <div className="form_input">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                onChange={setVal}
+                value={inpval.email}
+                name="email"
+                id="email"
+                placeholder="Enter Your Email Address"
+              />
+            </div>
+            <div className="form_input">
+              <label htmlFor="password">Password</label>
+              <div className="two">
                 <input
-                  type={field.type}
-                  name={field.name}
-                  placeholder={field.label}
-                  className="bg-transparent text-gray-800 text-lg flex-1 focus:outline-none"
-                  onChange={handleInputChange}
+                  type={!passShow ? "password" : "text"}
+                  value={inpval.password}
+                  onChange={setVal}
+                  name="password"
+                  id="password"
+                  placeholder="Enter Your password"
                 />
+                <div
+                  className="showpass"
+                  onClick={() => setPassShow(!passShow)}
+                >
+                  {!passShow ? "Show" : "Hide"}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-        {/* Button */}
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg font-semibold py-3 px-6 rounded-lg w-full hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 mt-4"
-        >
-          Sign Up
-        </button>
-        <ToastContainer
-          position="top-right"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      </div>
-    </div>
-  );
-}
 
-export default Signup;
+            <button className="btn" onClick={addUserdata}>
+              Sign Up
+            </button>
+            <p>
+              Already have an account? <NavLink to="/">Log In</NavLink>
+            </p>
+          </form>
+          <ToastContainer />
+        </div>
+      </section>
+    </>
+  );
+};
+
+export default Register;
