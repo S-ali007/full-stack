@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 import "../../src/Home.css";
 
 function Home() {
   const navigation = useNavigate();
   const [firstName, setFirstName] = useState("");
+  const [expirationInSeconds, setExpirationInSeconds] = useState(0);
+  const [currentTimeInSeconds, setCurrentTimeInSeconds] = useState(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -13,11 +17,48 @@ function Home() {
         const user = localStorage.getItem("userData");
         const userData = JSON.parse(user);
         setFirstName(userData.user.firstName);
+        const refreshToken = userData.refreshToken;
+        console.log(refreshToken, "old");
+
+        const decodedToken = jwtDecode(refreshToken);
+        const expireTimeInSecond = decodedToken.exp;
+        console.log(expireTimeInSecond);
+        setExpirationInSeconds(expireTimeInSecond);
+
+        const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+        setCurrentTimeInSeconds(currentTimeInSeconds);
+        const time = expireTimeInSecond - currentTimeInSeconds;
+        console.log(time, "time");
+        if (time <= 20) {
+          const interval = setInterval(async () => {
+            try {
+              const { data: res } = await axios.post(
+                "/api/v1/users/refresh-token",
+                refreshToken
+              );
+              // console.log(res.data.newRefreshToken,"new")
+              const newRefreshToken = res.data.newRefreshToken;
+              console.log(newRefreshToken, "new");
+              localStorage.setItem(
+                "userData",
+                JSON.stringify({
+                  refreshToken: newRefreshToken,
+                })
+              );
+              document.cookie = `refreshToken=${newRefreshToken}; `;
+            } catch (error) {
+              console.error("Token refresh failed:", error);
+            }
+          }, 2000);
+          return () => clearInterval(interval);
+        } else {
+          return;
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
-
     fetchUserData();
   }, []);
 
