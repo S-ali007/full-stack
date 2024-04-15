@@ -8,58 +8,63 @@ import "../../src/Home.css";
 function Home() {
   const navigation = useNavigate();
   const [firstName, setFirstName] = useState("");
-  const [expirationInSeconds, setExpirationInSeconds] = useState(0);
-  const [currentTimeInSeconds, setCurrentTimeInSeconds] = useState(0);
+  // const [expirationInSeconds, setExpirationInSeconds] = useState(0);
+  // const [currentTimeInSeconds, setCurrentTimeInSeconds] = useState(0);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserData = () => {
       try {
         const user = localStorage.getItem("userData");
         const userData = JSON.parse(user);
         setFirstName(userData.user.firstName);
         const refreshToken = userData.refreshToken;
-        console.log(refreshToken, "old");
+        // console.log(refreshToken, "old");
 
         const decodedToken = jwtDecode(refreshToken);
         const expireTimeInSecond = decodedToken.exp;
-        console.log(expireTimeInSecond);
-        setExpirationInSeconds(expireTimeInSecond);
+        // console.log(expireTimeInSecond);
+        // setExpirationInSeconds(expireTimeInSecond);
 
-        const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+        const currentTimeInSecond = Math.floor(Date.now() / 1000);
 
-        setCurrentTimeInSeconds(currentTimeInSeconds);
-        const time = expireTimeInSecond - currentTimeInSeconds;
-        console.log(time, "time");
-        if (time <= 20) {
-          const interval = setInterval(async () => {
-            try {
-              const { data: res } = await axios.post(
-                "/api/v1/users/refresh-token",
-                refreshToken
-              );
-              // console.log(res.data.newRefreshToken,"new")
-              const newRefreshToken = res.data.newRefreshToken;
-              console.log(newRefreshToken, "new");
-              localStorage.setItem(
-                "userData",
-                JSON.stringify({
-                  refreshToken: newRefreshToken,
-                })
-              );
-              document.cookie = `refreshToken=${newRefreshToken}; `;
-            } catch (error) {
-              console.error("Token refresh failed:", error);
-            }
-          }, 2000);
-          return () => clearInterval(interval);
-        } else {
-          return;
+        // setCurrentTimeInSeconds(currentTimeInSecond);
+        const time = expireTimeInSecond - currentTimeInSecond;
+        // console.log(time, "time");
+        if (time < 30 && time > 0) {
+          try {
+            axios
+              .post("/api/v1/users/refresh-token", refreshToken)
+              .then((res) => {
+                const newRefreshToken = res.data?.data.newRefreshToken;
+                // localStorage.setItem(
+                //   "userData",
+                //   JSON.stringify({
+                //     user: userData.user,
+                //     refreshToken: newRefreshToken,
+                //   })
+                // );
+                // console.log(newRefreshToken, "new");
+
+                localStorage.setItem(
+                  "userData",
+                  JSON.stringify({
+                    user: userData.user,
+                    refreshToken: newRefreshToken,
+                  })
+                );
+                document.cookie = `refreshToken=${newRefreshToken}; `;
+              });
+          } catch (error) {
+            console.error("Token refresh failed:", error);
+          }
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
-    fetchUserData();
+
+    setInterval(fetchUserData, 2000);
+    // return () => clearInterval(interval);
   }, []);
 
   const handleLogout = async () => {
